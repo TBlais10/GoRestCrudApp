@@ -1,11 +1,9 @@
 package careerdevs.springboot.GoRestCrudApp.Model;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
 public class GoRest {
-    @Id @GeneratedValue private Long Id;
-
+    private Object meta;
+    private Object data;
+    private Long Id;
     private String name;
     private String email;
     private String gender;
@@ -13,6 +11,22 @@ public class GoRest {
 
     public Long getId() {
         return Id;
+    }
+
+    public Object getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Object meta) {
+        this.meta = meta;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
     }
 
     public void setId(Long id) {
