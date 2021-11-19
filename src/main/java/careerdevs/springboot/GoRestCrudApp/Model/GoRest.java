@@ -9,6 +9,14 @@ public class GoRest {
     private String gender;
     private String status;
 
+
+    public GoRest(String name, String email, String gender, String status) {
+        this.name = name;
+        this.email = email;
+        this.gender = gender;
+        this.status = status;
+    }
+
     public Long getId() {
         return Id;
     }

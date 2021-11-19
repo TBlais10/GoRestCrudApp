@@ -3,6 +3,9 @@ package careerdevs.springboot.GoRestCrudApp.Controllers;
 import careerdevs.springboot.GoRestCrudApp.Model.GoRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -15,9 +18,8 @@ public class GoRestUserController {
     private Environment env;
 
 
-
     @GetMapping("/pageone")
-    public Object getUsers (RestTemplate restTemplate){
+    public Object getUsers(RestTemplate restTemplate) {
         String URL = "https://gorest.co.in/public/v1/users";
 
         //TODO: Add do while loop that grabs all of the users inside their pages.
@@ -26,38 +28,58 @@ public class GoRestUserController {
     }
 
     @GetMapping("/get")
-    public Object getUser (RestTemplate restTemplate, @RequestParam (name="id", defaultValue = "1")String id){
-        String URL = "https://gorest.co.in/public/v1/users" + id;
+    public Object getUser(RestTemplate restTemplate, @RequestParam(name = "id", defaultValue = "1") String id) {
+        String URL = "https://gorest.co.in/public/v1/users/" + id;
 
         return restTemplate.getForObject(URL, GoRest.class).getData();
 
     }
 
-    @PostMapping("/")
-    public String testPostMapping () {
-        return "TEST";
+    @PostMapping("/new")
+    public Object createuser(RestTemplate restTemplate,
+                             @RequestParam(name="name") String name,
+                             @RequestParam(name="email") String email,
+                             @RequestParam(name="gender") String gender,
+                             @RequestParam(name="status") String status){
+        String URL = "https://gorest.co.in/public/v1/users/";
+
+        try {
+            HttpHeaders header = new HttpHeaders();
+            header.setBearerAuth(env.getProperty("bearer.token"));
+
+            GoRest newUser = new GoRest(name, email, gender, status);
+            HttpEntity request = new HttpEntity(header);
+            return restTemplate.exchange(URL, HttpMethod.POST, request ,GoRest.class);
+        } catch (HttpClientErrorException.Unauthorized e) {
+            return "No bearer token detected. You need authorization";
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
+
     }
 
     @PutMapping("/")
-    public String testPutMapping () {
+    public String testPutMapping() {
         return "TEST";
     }
 
-    @DeleteMapping ("/delete")
-    public String deleteUser (RestTemplate restTemplate, @RequestParam(name = "id")String id;){
+    @DeleteMapping("/delete")
+    public String deleteUser(RestTemplate restTemplate, @RequestParam(name = "id") String id) {
 
-        String URL = "https://gorest.co.in/public/v1/users" + id;
-
+        String URL = "https://gorest.co.in/public/v1/users/" + id;
         try {
-        restTemplate.delete(URL);
-        return "You have deleted the user: " + id;
-        } catch (HttpClientErrorException.Unauthorized e){
+           HttpHeaders header = new HttpHeaders();
+           header.setBearerAuth(env.getProperty("bearer.token"));
+
+            HttpEntity request = new HttpEntity(header);
+            restTemplate.exchange(URL, HttpMethod.DELETE, request ,GoRest.class);
+            return "You have deleted the user: " + id;
+        } catch (HttpClientErrorException.Unauthorized e) {
             return "No bearer token detected. You need authorization";
-        }
-        catch (HttpClientErrorException.NotFound e){
+        } catch (HttpClientErrorException.NotFound e) {
             return "ID did not match a user in the database.";
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return e.getMessage();
         }
