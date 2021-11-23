@@ -6,10 +6,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/gorest/user")
@@ -46,9 +47,8 @@ public class GoRestUserController {
         try {
             HttpHeaders header = new HttpHeaders();
             header.setBearerAuth(env.getProperty("bearer.token"));
-
             GoRest newUser = new GoRest(name, email, gender, status);
-            HttpEntity request = new HttpEntity(header);
+            HttpEntity request = new HttpEntity(newUser, header);
             return restTemplate.exchange(URL, HttpMethod.POST, request ,GoRest.class);
         } catch (HttpClientErrorException.Unauthorized e) {
             return "No bearer token detected. You need authorization";
@@ -59,9 +59,20 @@ public class GoRestUserController {
 
     }
 
-    @PutMapping("/")
-    public String testPutMapping() {
-        return "TEST";
+    @PutMapping("/put")
+    public Object updateUser (RestTemplate restTemplate,
+                              @RequestParam(name = "id", defaultValue = "1") String id,
+                              @RequestParam(name="name") String name,
+                              @RequestParam(name="email") String email,
+                              @RequestParam(name="gender") String gender,
+                              @RequestParam(name="status") String status){
+        String URL = "https://gorest.co.in/public/v1/users/" + id;
+        HttpHeaders header = new HttpHeaders();
+        GoRest newUser = new GoRest(name, email, gender, status);
+        header.setBearerAuth(env.getProperty("bearer.token"));
+        HttpEntity request = new HttpEntity(newUser, header);
+
+        return restTemplate.exchange(URL, HttpMethod.PUT, request, GoRest.class);
     }
 
     @DeleteMapping("/delete")
@@ -85,3 +96,19 @@ public class GoRestUserController {
         }
     }
 }
+
+/*//You need all of them - default way
+        //RequestPeram
+        //QuiryPeram
+        //Quiry - a question
+        //Setting our statically
+        //make a variable out of the slashes that wea are using
+        //Path variable
+        //patch requests are for small updates
+        //puts are for larger updates
+        //No distinction between put and patch requests - GoRest.co.in
+        //identical function that works with either.
+        //not needing to send a fully completed object (requestparams)
+        //set requestparam to request false. Default required
+
+        //for loop that takes in the keys for the profile and if what they fill in matches a key, update that field.*/
