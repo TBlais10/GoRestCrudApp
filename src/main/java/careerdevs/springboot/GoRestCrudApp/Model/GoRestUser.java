@@ -1,6 +1,6 @@
 package careerdevs.springboot.GoRestCrudApp.Model;
 
-public class GoRest {
+public class GoRestUser {
     private Object meta;
     private Object data;
     private Long Id;
@@ -10,11 +10,15 @@ public class GoRest {
     private String status;
 
 
-    public GoRest(String name, String email, String gender, String status) {
+
+    public GoRestUser(String name, String email, String gender, String status) {
         this.name = name;
         this.email = email;
         this.gender = gender;
         this.status = status;
+    }
+
+    public GoRestUser() {
     }
 
     public Long getId() {
@@ -72,4 +76,6 @@ public class GoRest {
     public void setStatus(String status) {
         this.status = status;
     }
+
+
 }
